@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -22,16 +23,20 @@ public class SecurityConfig {
             .authorizeRequests(authorize -> authorize
                 // Allow access to static resources without authentication
                 .antMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
-                .antMatchers("/", "/login", "/h2-console/**", "/health", "/api").permitAll()
+                .antMatchers("/", "/login", "/h2-console/**", "/health").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/dashboard", true)
+                .failureUrl("/login?error=true")
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutSuccessUrl("/login?logout")
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutSuccessUrl("/login?logout=true")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
                 .permitAll()
             )
             .csrf(csrf -> csrf
@@ -48,17 +53,23 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         UserDetails admin = User.builder()
             .username("admin")
-            .password(passwordEncoder().encode("password"))
-            .roles("ADMIN")
+            .password(passwordEncoder().encode("admin123"))
+            .roles("ADMIN", "USER")
             .build();
             
         UserDetails manager = User.builder()
             .username("manager")
-            .password(passwordEncoder().encode("password"))
-            .roles("MANAGER")
+            .password(passwordEncoder().encode("manager123"))
+            .roles("MANAGER", "USER")
             .build();
 
-        return new InMemoryUserDetailsManager(admin, manager);
+        UserDetails user = User.builder()
+            .username("user")
+            .password(passwordEncoder().encode("user123"))
+            .roles("USER")
+            .build();
+
+        return new InMemoryUserDetailsManager(admin, manager, user);
     }
 
     @Bean

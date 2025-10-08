@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         .login-bg {
@@ -20,95 +20,112 @@
         }
     </style>
 </head>
-<body class="login-bg min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-md w-full">
+<body class="login-bg min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
         <!-- Login Card -->
-        <div class="bg-white rounded-2xl card-shadow overflow-hidden">
+        <div class="bg-white rounded-2xl card-shadow p-8">
             <!-- Header -->
-            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-center">
-                <div class="flex items-center justify-center mb-4">
-                    <i class="fas fa-boxes text-white text-3xl mr-3"></i>
-                    <h1 class="text-2xl font-bold text-white">InventoryPro</h1>
+            <div class="text-center">
+                <div class="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-boxes text-white text-2xl"></i>
                 </div>
-                <p class="text-blue-100">Inventory Management System</p>
-            </div>
-            
-            <!-- Login Form -->
-            <div class="px-8 py-8">
-                <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Welcome Back</h2>
-                <p class="text-gray-600 text-center mb-8">Sign in to your account</p>
-                
-                <!-- Error Message -->
-                <div th:if="${param.error}" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                    <div class="flex items-center">
-                        <i class="fas fa-exclamation-circle text-red-600 mr-3"></i>
-                        <p class="text-red-800 text-sm">Invalid username or password</p>
-                    </div>
-                </div>
-                
-                <!-- Logout Message -->
-                <div th:if="${param.logout}" class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                    <div class="flex items-center">
-                        <i class="fas fa-check-circle text-green-600 mr-3"></i>
-                        <p class="text-green-800 text-sm">You have been logged out successfully</p>
-                    </div>
-                </div>
-                
-                <form th:action="@{/login}" method="post" class="space-y-6">
-                    <!-- Username -->
-                    <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-user mr-2 text-gray-400"></i>Username
-                        </label>
-                        <input type="text" id="username" name="username" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                               placeholder="Enter your username" required autofocus>
-                    </div>
-                    
-                    <!-- Password -->
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-lock mr-2 text-gray-400"></i>Password
-                        </label>
-                        <input type="password" id="password" name="password" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                               placeholder="Enter your password" required>
-                    </div>
-                    
-                    <!-- Remember Me -->
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="remember-me" name="remember-me" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <label for="remember-me" class="ml-2 block text-sm text-gray-700">Remember me</label>
-                        </div>
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-500">Forgot password?</a>
-                    </div>
-                    
-                    <!-- Submit Button -->
-                    <button type="submit" 
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center">
-                        <i class="fas fa-sign-in-alt mr-2"></i>
-                        Sign In
-                    </button>
-                </form>
-                
-                <!-- Demo Credentials -->
-                <div class="mt-8 p-4 bg-gray-50 rounded-lg">
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">Demo Credentials:</h3>
-                    <div class="text-xs text-gray-600 space-y-1">
-                        <p><strong>Username:</strong> admin</p>
-                        <p><strong>Password:</strong> password</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Footer -->
-            <div class="bg-gray-50 px-8 py-4 border-t border-gray-200 text-center">
-                <p class="text-sm text-gray-600">
-                    &copy; 2025 InventoryPro. All rights reserved.
+                <h2 class="mt-6 text-3xl font-bold text-gray-900">
+                    InventoryPro
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Sign in to your account
                 </p>
             </div>
+
+            <!-- Login Form -->
+            <form class="mt-8 space-y-6" th:action="@{/login}" method="post">
+                <!-- Error Messages -->
+                <div th:if="${error}" class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                        <span class="text-red-700 text-sm" th:text="${error}"></span>
+                    </div>
+                </div>
+                
+                <!-- Success Messages -->
+                <div th:if="${message}" class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span class="text-green-700 text-sm" th:text="${message}"></span>
+                    </div>
+                </div>
+
+                <!-- Username Field -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+                        Username
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input id="username" name="username" type="text" required 
+                               class="relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Enter your username">
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input id="password" name="password" type="password" required 
+                               class="relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Enter your password">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit" 
+                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-sign-in-alt text-blue-300 group-hover:text-blue-200"></i>
+                        </span>
+                        Sign in
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center">
+            <p class="text-white text-sm">
+                &copy; 2024 InventoryPro. All rights reserved.
+            </p>
         </div>
     </div>
+
+    <script>
+        // Simple form enhancement
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input[required]');
+            
+            inputs.forEach(input => {
+                input.addEventListener('invalid', function() {
+                    this.classList.add('border-red-500');
+                });
+                
+                input.addEventListener('input', function() {
+                    if (this.checkValidity()) {
+                        this.classList.remove('border-red-500');
+                        this.classList.add('border-green-500');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

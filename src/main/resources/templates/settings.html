@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="fragments/header :: head('Settings')">
+</head>
+<body class="bg-gray-50">
+    <!-- Include sidebar -->
+    <div th:replace="fragments/sidebar :: body"></div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-64 min-h-screen flex flex-col">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+            <div class="px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">Settings</h2>
+                        <p class="text-gray-600 text-sm mt-1">Manage your account settings and preferences</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a th:href="@{/profile}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+                            <i class="fas fa-user mr-2"></i>
+                            Back to Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 p-6">
+            <div class="max-w-2xl mx-auto">
+                <!-- Flash Messages -->
+                <div th:if="${success}" class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span class="text-green-700" th:text="${success}"></span>
+                    </div>
+                </div>
+                
+                <div th:if="${error}" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                        <span class="text-red-700" th:text="${error}"></span>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">Account Settings</h3>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            <!-- Username -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                                <div class="flex items-center space-x-3">
+                                    <input type="text" th:value="${username}" 
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" 
+                                           readonly>
+                                    <span class="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded">Cannot change</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                <input type="email" th:value="${email}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Change -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">Change Password</h3>
+                    </div>
+                    
+                    <div class="p-6">
+                        <form th:action="@{/profile/update-password}" method="post" class="space-y-4">
+                            <!-- Current Password -->
+                            <div>
+                                <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Current Password
+                                </label>
+                                <input id="currentPassword" name="currentPassword" type="password" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="Enter current password">
+                            </div>
+                            
+                            <!-- New Password -->
+                            <div>
+                                <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                                    New Password
+                                </label>
+                                <input id="newPassword" name="newPassword" type="password" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="Enter new password">
+                                <p class="text-xs text-gray-500 mt-1">Password must be at least 6 characters long</p>
+                            </div>
+                            
+                            <!-- Confirm Password -->
+                            <div>
+                                <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Confirm New Password
+                                </label>
+                                <input id="confirmPassword" name="confirmPassword" type="password" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="Confirm new password">
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <div class="pt-4">
+                                <button type="submit" 
+                                        class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
+                                    <i class="fas fa-key mr-2"></i>
+                                    Update Password
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

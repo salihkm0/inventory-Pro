@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Receipt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 28px;
+        }
+        .header p {
+            color: #7f8c8d;
+            margin: 5px 0 0 0;
+        }
+        .info-section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        .info-section h2 {
+            color: #34495e;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .info-item {
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .info-value {
+            color: #212529;
+            font-size: 14px;
+        }
+        .amount {
+            font-weight: bold;
+            color: #28a745;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 10px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 20px;
+        }
+        .section-divider {
+            border-top: 1px dashed #dee2e6;
+            margin: 20px 0;
+        }
+        .receipt-number {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Sales Receipt</h1>
+        <p>Generated on: <span th:text="${currentDate}"></span></p>
+    </div>
+
+    <div class="receipt-number">
+        <strong>Receipt #: </strong><span th:text="${sale.id}">N/A</span>
+    </div>
+
+    <div class="info-section">
+        <h2>Sale Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Sale ID</span>
+                <span class="info-value" th:text="${sale.id}">N/A</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Sale Date</span>
+                <span class="info-value" th:text="${#temporals.format(sale.saleDate, 'yyyy-MM-dd HH:mm')}">N/A</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="info-section">
+        <h2>Product Details</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Product Name</span>
+                <span class="info-value" th:text="${sale.productName}">N/A</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">SKU</span>
+                <span class="info-value" th:text="${sale.productSku}">N/A</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Category</span>
+                <span class="info-value" th:text="${sale.productCategory ?: 'Not specified'}">N/A</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Product ID</span>
+                <span class="info-value" th:text="${sale.productId}">N/A</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="info-section">
+        <h2>Transaction Details</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Quantity</span>
+                <span class="info-value" th:text="${sale.quantity}">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Unit Price</span>
+                <span class="info-value" th:text="'$' + ${#numbers.formatDecimal(sale.unitPrice, 1, 2)}">$0.00</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Total Amount</span>
+                <span class="info-value amount" th:text="'$' + ${#numbers.formatDecimal(sale.totalAmount, 1, 2)}">$0.00</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Payment Method</span>
+                <span class="info-value" th:text="${sale.paymentMethod ?: 'Not specified'}">N/A</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="info-section" th:if="${sale.customerName}">
+        <h2>Customer Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Customer Name</span>
+                <span class="info-value" th:text="${sale.customerName}">N/A</span>
+            </div>
+            <div class="info-item" th:if="${sale.customerEmail}">
+                <span class="info-label">Customer Email</span>
+                <span class="info-value" th:text="${sale.customerEmail}">N/A</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Inventory Management System - Official Sales Receipt</p>
+        <p>This is an automated receipt generated by the system.</p>
+    </div>
+</body>
+</html>

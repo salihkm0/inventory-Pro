@@ -139,6 +139,12 @@
                             <a th:href="@{/products}" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                                 Back to List
                             </a>
+                            <!-- PDF Download Button -->
+                            <a th:href="@{/products/{id}/pdf(id=${product.id})}" 
+                               class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center">
+                                <i class="fas fa-file-pdf mr-2"></i>
+                                Download PDF
+                            </a>
                             <a th:href="@{/products/edit/{id}(id=${product.id})}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center">
                                 <i class="fas fa-edit mr-2"></i>
                                 Edit Product

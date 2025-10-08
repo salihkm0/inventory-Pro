@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Inventory Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+            line-height: 1.4;
+            font-size: 12px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            color: #7f8c8d;
+            margin: 5px 0 0 0;
+        }
+        .summary {
+            margin-bottom: 20px;
+            text-align: center;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .stat-instock { background-color: #d4edda; color: #155724; }
+        .stat-lowstock { background-color: #fff3cd; color: #856404; }
+        .stat-outstock { background-color: #f8d7da; color: #721c24; }
+        .stat-total { background-color: #d1ecf1; color: #0c5460; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #495057;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .stock-low {
+            background-color: #fff3cd !important;
+        }
+        .stock-out {
+            background-color: #f8d7da !important;
+        }
+        .footer {
+            text-align: center;
+            color: #6c757d;
+            font-size: 9px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        .status-badge {
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        .status-instock { background-color: #d4edda; color: #155724; }
+        .status-lowstock { background-color: #fff3cd; color: #856404; }
+        .status-outstock { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Product Inventory Report</h1>
+        <p>Generated on: <span th:text="${currentDate}"></span></p>
+    </div>
+
+    <div class="summary">
+        <h3>Inventory Summary</h3>
+        <div class="summary-stats">
+            <div class="stat-item stat-total">
+                <div class="stat-number" th:text="${totalProducts}">0</div>
+                <div class="stat-label">Total Products</div>
+            </div>
+            <div class="stat-item stat-instock">
+                <div class="stat-number" th:text="${inStockCount}">0</div>
+                <div class="stat-label">In Stock</div>
+            </div>
+            <div class="stat-item stat-lowstock">
+                <div class="stat-number" th:text="${lowStockCount}">0</div>
+                <div class="stat-label">Low Stock</div>
+            </div>
+            <div class="stat-item stat-outstock">
+                <div class="stat-number" th:text="${outOfStockCount}">0</div>
+                <div class="stat-label">Out of Stock</div>
+            </div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Reorder Level</th>
+                <th>Stock Status</th>
+                <th>Inventory Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="product : ${products}" 
+                th:classappend="${product.stockStatus == 'LOW_STOCK'} ? 'stock-low' : 
+                               ${product.stockStatus == 'OUT_OF_STOCK'} ? 'stock-out' : ''">
+                <td th:text="${product.sku}">N/A</td>
+                <td th:text="${product.name}">N/A</td>
+                <td th:text="${product.category ?: 'Not specified'}">N/A</td>
+                <td th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</td>
+                <td th:text="${product.quantity}">0</td>
+                <td th:text="${product.reorderLevel ?: '10'}">10</td>
+                <td>
+                    <span th:classappend="'status-badge ' + 
+                                         ${product.stockStatus == 'IN_STOCK' ? 'status-instock' : 
+                                          product.stockStatus == 'LOW_STOCK' ? 'status-lowstock' : 'status-outstock'}"
+                          th:text="${product.stockStatus == 'IN_STOCK' ? 'In Stock' : 
+                                   product.stockStatus == 'LOW_STOCK' ? 'Low Stock' : 'Out of Stock'}">
+                        Status
+                    </span>
+                </td>
+                <td th:text="'$' + ${#numbers.formatDecimal((product.price != null ? product.price.doubleValue() : 0) * (product.quantity != null ? product.quantity : 0), 1, 2)}">$0.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Inventory Management System - Confidential Inventory Report</p>
+        <p>Total Products: <span th:text="${totalProducts}">0</span> | 
+           In Stock: <span th:text="${inStockCount}">0</span> | 
+           Low Stock: <span th:text="${lowStockCount}">0</span> | 
+           Out of Stock: <span th:text="${outOfStockCount}">0</span></p>
+        <p>This report was generated automatically by the system.</p>
+    </div>
+</body>
+</html>

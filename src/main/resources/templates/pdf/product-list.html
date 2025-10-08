@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+        }
+        .summary {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .stock-low {
+            background-color: #fff3cd;
+        }
+        .stock-out {
+            background-color: #f8d7da;
+        }
+        .footer {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 12px;
+            border-top: 1px solid #bdc3c7;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Product Inventory Report</h1>
+        <p>Generated on: <span th:text="${currentDate}"></span></p>
+    </div>
+
+    <div class="summary">
+        <p><strong>Total Products:</strong> <span th:text="${totalProducts}">0</span></p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Stock Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="product : ${products}" 
+                th:classappend="${product.stockStatus == 'LOW_STOCK'} ? 'stock-low' : 
+                               ${product.stockStatus == 'OUT_OF_STOCK'} ? 'stock-out' : ''">
+                <td th:text="${product.sku}">N/A</td>
+                <td th:text="${product.name}">N/A</td>
+                <td th:text="${product.category ?: 'Not specified'}">N/A</td>
+                <td th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</td>
+                <td th:text="${product.quantity}">0</td>
+                <td th:text="${product.stockStatus == 'IN_STOCK' ? 'In Stock' : 
+                             product.stockStatus == 'LOW_STOCK' ? 'Low Stock' : 'Out of Stock'}">
+                    Status
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Inventory Management System - Confidential Product List</p>
+    </div>
+</body>
+</html>

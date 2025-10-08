@@ -109,6 +109,11 @@
                         <span class="text-lg font-semibold text-gray-700">
                             Total Value: <span class="text-green-600" th:text="'$' + ${#numbers.formatDecimal(totalInventoryValue, 1, 2)}">$0.00</span>
                         </span>
+                        <!-- PDF Export Button -->
+                        <a th:href="@{/products/pdf/all}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i>
+                            Export to PDF
+                        </a>
                         <a th:href="@{/products/new}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
                             <i class="fas fa-plus mr-2"></i>
                             Add Product
@@ -141,6 +146,11 @@
                         <a th:href="@{/products/out-of-stock}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
                             <i class="fas fa-times-circle mr-2"></i>
                             Out of Stock
+                        </a>
+                        <!-- Low Stock PDF Export -->
+                        <a th:href="@{/products/low-stock/pdf}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i>
+                            Low Stock PDF
                         </a>
                     </div>
                 </div>
@@ -224,6 +234,12 @@
                                            class="text-gray-600 hover:text-gray-900 transition-colors" 
                                            title="View Details">
                                             <i class="fas fa-eye"></i>
+                                        </a>
+                                        <!-- PDF Download Button -->
+                                        <a th:href="@{/products/{id}/pdf(id=${product.id})}" 
+                                           class="text-red-600 hover:text-red-900 transition-colors" 
+                                           title="Download PDF">
+                                            <i class="fas fa-file-pdf"></i>
                                         </a>
                                     </div>
                                 </td>

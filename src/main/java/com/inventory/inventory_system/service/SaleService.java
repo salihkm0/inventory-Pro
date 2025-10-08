@@ -405,4 +405,69 @@ public class SaleService {
         
         return monthlySales;
     }
+
+    // Add this method to your existing SaleService class
+public Map<String, Object> getDashboardChartData() {
+    Map<String, Object> chartData = new HashMap<>();
+    
+    try {
+        // Get all sales
+        List<Sale> allSales = getAllSales();
+        System.out.println("📊 Processing " + allSales.size() + " sales for dashboard charts");
+        
+        // Monthly Sales Data
+        Map<String, BigDecimal> monthlySales = new LinkedHashMap<>();
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM yyyy");
+        
+        // Initialize last 6 months
+        for (int i = 5; i >= 0; i--) {
+            LocalDate monthDate = now.minusMonths(i);
+            String monthKey = monthDate.format(formatter);
+            monthlySales.put(monthKey, BigDecimal.ZERO);
+        }
+        
+        // Sales by Category
+        Map<String, BigDecimal> salesByCategory = new HashMap<>();
+        
+        // Process each sale
+        for (Sale sale : allSales) {
+            // Monthly data
+            if (sale.getSaleDate() != null) {
+                String monthKey = sale.getSaleDate().format(formatter);
+                BigDecimal saleAmount = sale.getTotalAmount();
+                
+                if (monthlySales.containsKey(monthKey) && saleAmount != null) {
+                    BigDecimal currentTotal = monthlySales.get(monthKey);
+                    monthlySales.put(monthKey, currentTotal.add(saleAmount));
+                }
+            }
+            
+            // Category data
+            String category = sale.getProductCategory();
+            BigDecimal amount = sale.getTotalAmount();
+            
+            if (amount != null && category != null && !category.trim().isEmpty()) {
+                salesByCategory.merge(category, amount, BigDecimal::add);
+            }
+        }
+        
+        chartData.put("monthlySales", monthlySales);
+        chartData.put("salesByCategory", salesByCategory);
+        
+        System.out.println("✅ Dashboard chart data processed successfully");
+        System.out.println("📈 Monthly Sales: " + monthlySales);
+        System.out.println("📊 Sales by Category: " + salesByCategory);
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error processing dashboard chart data: " + e.getMessage());
+        e.printStackTrace();
+        
+        // Return empty data instead of sample data
+        chartData.put("monthlySales", new LinkedHashMap<>());
+        chartData.put("salesByCategory", new HashMap<>());
+    }
+    
+    return chartData;
+}
 }

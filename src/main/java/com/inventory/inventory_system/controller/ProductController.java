@@ -1,14 +1,20 @@
 package com.inventory.inventory_system.controller;
 
 import com.inventory.inventory_system.entity.Product;
+import com.inventory.inventory_system.service.PdfService;
 import com.inventory.inventory_system.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +25,9 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private PdfService pdfService;
 
     // MAIN PRODUCTS LIST PAGE
     @GetMapping
@@ -243,100 +252,162 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/reports")
-public String showReports(Model model) {
-    try {
-        System.out.println("📊 Loading reports page...");
-
-        // Get all products with error handling
-        List<Product> products;
+    // PDF Generation Endpoints
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> generateProductPdf(@PathVariable Long id) {
         try {
-            products = productService.getAllProducts();
+            Product product = productService.getProductById(id)
+                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+            
+            byte[] pdfBytes = pdfService.generateProductPdf(product);
+            
+            String filename = "product-" + product.getSku() + "-" + 
+                             LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf";
+            
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfBytes);
+                    
         } catch (Exception e) {
-            System.err.println("⚠️ Could not load products for reports: " + e.getMessage());
-            products = Collections.emptyList();
+            throw new RuntimeException("Error generating PDF: " + e.getMessage());
         }
-
-        // Handle null products
-        if (products == null) {
-            products = Collections.emptyList();
-        }
-
-        // Calculate statistics with null safety
-        long totalProductsCount = products.size();
-        long inStockCount = products.stream()
-                .filter(p -> p != null && p.getQuantity() != null && p.getQuantity() > 0)
-                .count();
-        long lowStockCount = products.stream()
-                .filter(p -> p != null && p.getQuantity() != null && p.getQuantity() > 0 && p.getQuantity() <= 5)
-                .count();
-        long outOfStockCount = products.stream()
-                .filter(p -> p != null && (p.getQuantity() == null || p.getQuantity() == 0))
-                .count();
-
-        // Calculate total inventory value with null safety
-        double totalInventoryValueDouble = products.stream()
-                .filter(p -> p != null && p.getPrice() != null && p.getQuantity() != null)
-                .mapToDouble(p -> p.getPrice().doubleValue() * p.getQuantity())
-                .sum();
-
-        // Get Top Products by Inventory Value (sorted by price * quantity)
-        List<Product> topProductsByValue = products.stream()
-                .filter(p -> p != null && p.getPrice() != null && p.getQuantity() != null)
-                .sorted((p1, p2) -> {
-                    BigDecimal value1 = p1.getPrice().multiply(BigDecimal.valueOf(p1.getQuantity()));
-                    BigDecimal value2 = p2.getPrice().multiply(BigDecimal.valueOf(p2.getQuantity()));
-                    return value2.compareTo(value1); // Descending order
-                })
-                .limit(10) // Top 10 products
-                .collect(Collectors.toList());
-
-        // Get Low Stock Products (quantity <= 5 and > 0)
-        List<Product> lowStockProductsList = products.stream()
-                .filter(p -> p != null && p.getQuantity() != null && p.getQuantity() > 0 && p.getQuantity() <= 5)
-                .sorted((p1, p2) -> p1.getQuantity().compareTo(p2.getQuantity())) // Sort by quantity ascending
-                .collect(Collectors.toList());
-
-        // Add attributes to model
-        model.addAttribute("totalProductsReport", totalProductsCount);
-        model.addAttribute("inStockCount", inStockCount);
-        model.addAttribute("lowStockCount", lowStockCount);
-        model.addAttribute("outOfStockCount", outOfStockCount);
-        model.addAttribute("totalInventoryValueDouble", totalInventoryValueDouble);
-        model.addAttribute("topProductsByValue", topProductsByValue);
-        model.addAttribute("lowStockProductsList", lowStockProductsList);
-
-        // Sidebar statistics
-        model.addAttribute("totalProducts", totalProductsCount);
-        model.addAttribute("inStockProducts", inStockCount);
-        model.addAttribute("lowStockProducts", lowStockCount);
-        model.addAttribute("outOfStockProducts", outOfStockCount);
-        model.addAttribute("totalInventoryValue", BigDecimal.valueOf(totalInventoryValueDouble));
-
-        model.addAttribute("title", "Reports & Analytics");
-
-        System.out.println("✅ Reports data loaded successfully");
-        System.out.println("📈 Top Products: " + topProductsByValue.size());
-        System.out.println("⚠️ Low Stock Items: " + lowStockProductsList.size());
-
-        return "products/reports";
-
-    } catch (Exception e) {
-        System.err.println("❌ Error in reports: " + e.getMessage());
-
-        // Provide safe fallback values
-        model.addAttribute("totalProductsReport", 0);
-        model.addAttribute("inStockCount", 0);
-        model.addAttribute("lowStockCount", 0);
-        model.addAttribute("outOfStockCount", 0);
-        model.addAttribute("totalInventoryValueDouble", 0.0);
-        model.addAttribute("topProductsByValue", Collections.emptyList());
-        model.addAttribute("lowStockProductsList", Collections.emptyList());
-
-        model.addAttribute("error", "Reports are temporarily unavailable. Please try again later.");
-        model.addAttribute("title", "Reports & Analytics");
-
-        return "products/reports";
     }
-}
+
+    @GetMapping("/pdf/all")
+    public ResponseEntity<byte[]> generateAllProductsPdf() {
+        try {
+            List<Product> products = productService.getAllProducts();
+            
+            byte[] pdfBytes = pdfService.generateProductListPdf(products);
+            
+            String filename = "all-products-" + 
+                             LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf";
+            
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfBytes);
+                    
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating PDF: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/low-stock/pdf")
+    public ResponseEntity<byte[]> generateLowStockPdf() {
+        try {
+            List<Product> lowStockProducts = productService.getLowStockProducts();
+            
+            byte[] pdfBytes = pdfService.generateProductListPdf(lowStockProducts);
+            
+            String filename = "low-stock-products-" + 
+                             LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf";
+            
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfBytes);
+                    
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating PDF: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/reports")
+    public String showReports(Model model) {
+        try {
+            System.out.println("📊 Loading reports page...");
+
+            // Get all products with error handling
+            List<Product> products;
+            try {
+                products = productService.getAllProducts();
+            } catch (Exception e) {
+                System.err.println("⚠️ Could not load products for reports: " + e.getMessage());
+                products = Collections.emptyList();
+            }
+
+            // Handle null products
+            if (products == null) {
+                products = Collections.emptyList();
+            }
+
+            // Calculate statistics with null safety
+            long totalProductsCount = products.size();
+            long inStockCount = products.stream()
+                    .filter(p -> p != null && p.getQuantity() != null && p.getQuantity() > 0)
+                    .count();
+            long lowStockCount = products.stream()
+                    .filter(p -> p != null && p.getQuantity() != null && p.getQuantity() > 0 && p.getQuantity() <= 5)
+                    .count();
+            long outOfStockCount = products.stream()
+                    .filter(p -> p != null && (p.getQuantity() == null || p.getQuantity() == 0))
+                    .count();
+
+            // Calculate total inventory value with null safety
+            double totalInventoryValueDouble = products.stream()
+                    .filter(p -> p != null && p.getPrice() != null && p.getQuantity() != null)
+                    .mapToDouble(p -> p.getPrice().doubleValue() * p.getQuantity())
+                    .sum();
+
+            // Get Top Products by Inventory Value (sorted by price * quantity)
+            List<Product> topProductsByValue = products.stream()
+                    .filter(p -> p != null && p.getPrice() != null && p.getQuantity() != null)
+                    .sorted((p1, p2) -> {
+                        BigDecimal value1 = p1.getPrice().multiply(BigDecimal.valueOf(p1.getQuantity()));
+                        BigDecimal value2 = p2.getPrice().multiply(BigDecimal.valueOf(p2.getQuantity()));
+                        return value2.compareTo(value1); // Descending order
+                    })
+                    .limit(10) // Top 10 products
+                    .collect(Collectors.toList());
+
+            // Get Low Stock Products (quantity <= 5 and > 0)
+            List<Product> lowStockProductsList = products.stream()
+                    .filter(p -> p != null && p.getQuantity() != null && p.getQuantity() > 0 && p.getQuantity() <= 5)
+                    .sorted((p1, p2) -> p1.getQuantity().compareTo(p2.getQuantity())) // Sort by quantity ascending
+                    .collect(Collectors.toList());
+
+            // Add attributes to model
+            model.addAttribute("totalProductsReport", totalProductsCount);
+            model.addAttribute("inStockCount", inStockCount);
+            model.addAttribute("lowStockCount", lowStockCount);
+            model.addAttribute("outOfStockCount", outOfStockCount);
+            model.addAttribute("totalInventoryValueDouble", totalInventoryValueDouble);
+            model.addAttribute("topProductsByValue", topProductsByValue);
+            model.addAttribute("lowStockProductsList", lowStockProductsList);
+
+            // Sidebar statistics
+            model.addAttribute("totalProducts", totalProductsCount);
+            model.addAttribute("inStockProducts", inStockCount);
+            model.addAttribute("lowStockProducts", lowStockCount);
+            model.addAttribute("outOfStockProducts", outOfStockCount);
+            model.addAttribute("totalInventoryValue", BigDecimal.valueOf(totalInventoryValueDouble));
+
+            model.addAttribute("title", "Reports & Analytics");
+
+            System.out.println("✅ Reports data loaded successfully");
+            System.out.println("📈 Top Products: " + topProductsByValue.size());
+            System.out.println("⚠️ Low Stock Items: " + lowStockProductsList.size());
+
+            return "products/reports";
+
+        } catch (Exception e) {
+            System.err.println("❌ Error in reports: " + e.getMessage());
+
+            // Provide safe fallback values
+            model.addAttribute("totalProductsReport", 0);
+            model.addAttribute("inStockCount", 0);
+            model.addAttribute("lowStockCount", 0);
+            model.addAttribute("outOfStockCount", 0);
+            model.addAttribute("totalInventoryValueDouble", 0.0);
+            model.addAttribute("topProductsByValue", Collections.emptyList());
+            model.addAttribute("lowStockProductsList", Collections.emptyList());
+
+            model.addAttribute("error", "Reports are temporarily unavailable. Please try again later.");
+            model.addAttribute("title", "Reports & Analytics");
+
+            return "products/reports";
+        }
+    }
 }

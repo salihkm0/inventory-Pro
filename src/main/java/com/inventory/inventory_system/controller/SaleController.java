@@ -2,19 +2,23 @@ package com.inventory.inventory_system.controller;
 
 import com.inventory.inventory_system.entity.Product;
 import com.inventory.inventory_system.entity.Sale;
+import com.inventory.inventory_system.service.PdfService;
 import com.inventory.inventory_system.service.ProductService;
 import com.inventory.inventory_system.service.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 
 @Controller
 @RequestMapping("/sales")
@@ -26,17 +30,20 @@ public class SaleController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private PdfService pdfService;
+
     // Add this to your existing SaleController class
-@PostMapping("/create-sample")
-@ResponseBody
-public String createSampleSalesData() {
-    try {
-        saleService.createSampleSalesData();
-        return "Sample sales data created successfully";
-    } catch (Exception e) {
-        return "Error creating sample data: " + e.getMessage();
+    @PostMapping("/create-sample")
+    @ResponseBody
+    public String createSampleSalesData() {
+        try {
+            saleService.createSampleSalesData();
+            return "Sample sales data created successfully";
+        } catch (Exception e) {
+            return "Error creating sample data: " + e.getMessage();
+        }
     }
-}
     
     @GetMapping
     public String listSales(Model model,
@@ -246,6 +253,30 @@ public String createSampleSalesData() {
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/sales?error=" + e.getMessage();
+        }
+    }
+
+    // PDF Generation Endpoint for Sales
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> generateSalePdf(@PathVariable Long id) {
+        try {
+            Sale sale = saleService.getAllSales().stream()
+                    .filter(s -> s.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Sale not found with id: " + id));
+            
+            byte[] pdfBytes = pdfService.generateSalesPdf(sale);
+            
+            String filename = "sale-" + id + "-" + 
+                             LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf";
+            
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfBytes);
+                    
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating PDF: " + e.getMessage());
         }
     }
 }
