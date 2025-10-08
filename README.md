@@ -1,3 +1,5 @@
+
+
 # Inventory Management System
 
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.0-brightgreen)
@@ -81,3 +83,6 @@ A comprehensive web-based Inventory Management System built with Spring Boot tha
 - **Maven 3.6** or higher
 - **4GB RAM** minimum
 - **500MB** free disk space
+
+
+## Get The Full Project Explanation :https://slash-lord-f2f.notion.site/Inventory-Management-System-College-Project-Explanation-2866ece6f39b80dea953c986917b8a06
