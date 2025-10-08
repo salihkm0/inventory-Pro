@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+  lang="en"
+>
+  <head>
+    <title>Suppliers - InventoryPro</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      .sidebar {
+        transition: all 0.3s ease;
+      }
+      .mobile-menu-overlay {
+        display: none;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0.75rem;
+        color: #374151;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+      }
+      .nav-item:hover {
+        background-color: #eff6ff;
+        color: #2563eb;
+      }
+      .nav-item.active {
+        background-color: #dbeafe;
+        color: #2563eb;
+      }
+      .nav-icon {
+        width: 1.5rem;
+        text-align: center;
+        margin-right: 0.75rem;
+      }
+      .nav-text {
+        flex: 1;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.active {
+          transform: translateX(0);
+        }
+        .mobile-menu-overlay.active {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <!-- Include sidebar -->
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-64 min-h-screen flex flex-col">
+      <!-- Top Header -->
+      <header
+        class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30"
+      >
+        <div class="px-6 py-4">
+          <div class="flex justify-between items-center">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-800">Suppliers</h2>
+              <p class="text-gray-600 text-sm mt-1">
+                Manage your suppliers and vendor relationships
+              </p>
+            </div>
+            <div class="flex items-center space-x-4">
+              <!-- Stats Summary -->
+              <div class="hidden md:flex items-center space-x-6">
+                <div class="text-right">
+                  <p class="text-sm text-gray-600">Total Suppliers</p>
+                  <p
+                    class="text-lg font-semibold text-gray-900"
+                    th:text="${totalSuppliers}"
+                  >
+                    0
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-600">Active</p>
+                  <p
+                    class="text-lg font-semibold text-green-600"
+                    th:text="${activeSuppliers}"
+                  >
+                    0
+                  </p>
+                </div>
+              </div>
+              <a
+                th:href="@{/suppliers/new}"
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+              >
+                <i class="fas fa-plus mr-2"></i>
+                Add Supplier
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="flex-1 p-6">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div class="flex items-center">
+              <div class="p-3 bg-blue-100 rounded-lg">
+                <i class="fas fa-truck text-blue-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Total Suppliers</p>
+                <p
+                  class="text-2xl font-bold text-gray-900"
+                  th:text="${totalSuppliers}"
+                >
+                  0
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div class="flex items-center">
+              <div class="p-3 bg-green-100 rounded-lg">
+                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Active</p>
+                <p
+                  class="text-2xl font-bold text-gray-900"
+                  th:text="${activeSuppliers}"
+                >
+                  0
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div class="flex items-center">
+              <div class="p-3 bg-yellow-100 rounded-lg">
+                <i
+                  class="fas fa-exclamation-triangle text-yellow-600 text-xl"
+                ></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Pending Orders</p>
+                <p
+                  class="text-2xl font-bold text-gray-900"
+                  th:text="${pendingOrders}"
+                >
+                  0
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div class="flex items-center">
+              <div class="p-3 bg-purple-100 rounded-lg">
+                <i class="fas fa-star text-purple-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Top Rated</p>
+                <p
+                  class="text-2xl font-bold text-gray-900"
+                  th:text="${topRatedSuppliers}"
+                >
+                  0
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div
+          class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-8"
+        >
+          <div
+            class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0"
+          >
+            <div
+              class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4"
+            >
+              <!-- Search Form -->
+              <form
+                th:action="@{/suppliers}"
+                method="get"
+                class="flex items-center"
+              >
+                <div class="relative">
+                  <input
+                    type="text"
+                    name="search"
+                    placeholder="Search suppliers..."
+                    th:value="${searchTerm}"
+                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                  />
+                  <i
+                    class="fas fa-search absolute left-3 top-3 text-gray-400"
+                  ></i>
+                </div>
+                <button
+                  type="submit"
+                  class="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Search
+                </button>
+              </form>
+
+              <!-- Status Filter -->
+              <form
+                th:action="@{/suppliers}"
+                method="get"
+                class="flex items-center"
+              >
+                <select
+                  name="status"
+                  onchange="this.form.submit()"
+                  class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Status</option>
+                  <option
+                    value="active"
+                    th:selected="${selectedStatus == 'active'}"
+                  >
+                    Active
+                  </option>
+                  <option
+                    value="inactive"
+                    th:selected="${selectedStatus == 'inactive'}"
+                  >
+                    Inactive
+                  </option>
+                </select>
+              </form>
+
+              <!-- Country Filter -->
+              <form
+                th:action="@{/suppliers}"
+                method="get"
+                class="flex items-center"
+              >
+                <select
+                  name="country"
+                  onchange="this.form.submit()"
+                  class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Countries</option>
+                  <option
+                    th:each="country : ${countries}"
+                    th:value="${country}"
+                    th:text="${country}"
+                    th:selected="${selectedCountry == country}"
+                  ></option>
+                </select>
+              </form>
+            </div>
+
+            <div class="flex space-x-3">
+              <a
+                th:href="@{/suppliers}"
+                class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center"
+              >
+                <i class="fas fa-sync-alt mr-2"></i>
+                Reset Filters
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suppliers Table -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+        >
+          <!-- Table Header -->
+          <div
+            class="px-6 py-4 border-b border-gray-200 flex justify-between items-center"
+          >
+            <h3 class="text-lg font-semibold text-gray-800">
+              <th:block th:if="${searchTerm != null and !searchTerm.isEmpty()}">
+                <span
+                  >Search Results for "<span th:text="${searchTerm}"></span
+                  >"</span
+                >
+              </th:block>
+              <th:block
+                th:if="${selectedStatus != null and !selectedStatus.isEmpty()}"
+              >
+                <span
+                  th:text="${selectedStatus == 'active' ? 'Active' : 'Inactive'}"
+                ></span>
+                Suppliers
+              </th:block>
+              <th:block
+                th:if="${selectedCountry != null and !selectedCountry.isEmpty()}"
+              >
+                <span
+                  >Suppliers in <span th:text="${selectedCountry}"></span
+                ></span>
+              </th:block>
+              <th:block
+                th:if="${(searchTerm == null or searchTerm.isEmpty()) and (selectedStatus == null or selectedStatus.isEmpty()) and (selectedCountry == null or selectedCountry.isEmpty())}"
+              >
+                <span>All Suppliers</span>
+              </th:block>
+              <span
+                class="text-gray-500 text-sm font-normal ml-2"
+                th:text="'(' + ${suppliers.size()} + ' suppliers)'"
+              ></span>
+            </h3>
+            <div class="flex items-center space-x-2">
+              <span
+                class="text-sm text-gray-600"
+                th:if="${suppliers.size() > 0}"
+              >
+                Showing <span th:text="${suppliers.size()}"></span> of
+                <span th:text="${totalSuppliers}"></span> suppliers
+              </span>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Supplier
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Contact
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Contact Info
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Location
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Products
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr
+                  th:each="supplier : ${suppliers}"
+                  class="hover:bg-gray-50 transition-colors"
+                >
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div
+                        class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center"
+                      >
+                        <i class="fas fa-truck text-blue-600"></i>
+                      </div>
+                      <div class="ml-4">
+                        <div
+                          class="text-sm font-medium text-gray-900"
+                          th:text="${supplier.name}"
+                        ></div>
+                        <div
+                          class="text-sm text-gray-500"
+                          th:text="${supplier.supplierCode}"
+                        ></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div
+                      class="text-sm font-medium text-gray-900"
+                      th:text="${supplier.contactPerson} ?: 'Not specified'"
+                    ></div>
+                    <div
+                      class="text-sm text-gray-500"
+                      th:text="${supplier.contactTitle} ?: ''"
+                    ></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div
+                      class="text-sm text-gray-900"
+                      th:text="${supplier.email}"
+                    ></div>
+                    <div
+                      class="text-sm text-gray-500"
+                      th:text="${supplier.phone} ?: 'No phone'"
+                    ></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">
+                      <span
+                        th:if="${supplier.city}"
+                        th:text="${supplier.city}"
+                      ></span>
+                      <span
+                        th:if="${supplier.country}"
+                        th:text="', ' + ${supplier.country}"
+                      ></span>
+                      <span
+                        th:if="${supplier.city == null and supplier.country == null}"
+                        class="text-gray-400"
+                        >Not specified</span
+                      >
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900" th:text="0">0</div>
+                    <div class="text-xs text-gray-500">products</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <th:block th:if="${supplier.isActive}">
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                      >
+                        <i class="fas fa-check mr-1"></i> Active
+                      </span>
+                    </th:block>
+                    <th:block th:unless="${supplier.isActive}">
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                      >
+                        <i class="fas fa-times mr-1"></i> Inactive
+                      </span>
+                    </th:block>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex space-x-2">
+                      <a
+                        th:href="@{/suppliers/view/{id}(id=${supplier.id})}"
+                        class="text-blue-600 hover:text-blue-900 transition-colors"
+                        title="View Details"
+                      >
+                        <i class="fas fa-eye"></i>
+                      </a>
+                      <a
+                        th:href="@{/suppliers/edit/{id}(id=${supplier.id})}"
+                        class="text-green-600 hover:text-green-900 transition-colors"
+                        title="Edit"
+                      >
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a
+                        th:href="@{/suppliers/delete/{id}(id=${supplier.id})}"
+                        class="text-red-600 hover:text-red-900 transition-colors"
+                        title="Delete"
+                        onclick="return confirm('Are you sure you want to delete this supplier?')"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div th:if="${suppliers.empty}" class="text-center py-12">
+            <i class="fas fa-truck text-gray-300 text-6xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+              No suppliers found
+            </h3>
+            <p
+              class="text-gray-500 mb-4"
+              th:if="${searchTerm or selectedStatus or selectedCountry}"
+            >
+              No suppliers match your current filters.
+            </p>
+            <p
+              class="text-gray-500 mb-4"
+              th:unless="${searchTerm or selectedStatus or selectedCountry}"
+            >
+              Get started by adding your first supplier to manage your vendor
+              relationships.
+            </p>
+            <div class="flex justify-center space-x-3">
+              <a
+                th:href="@{/suppliers}"
+                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+              >
+                <i class="fas fa-sync-alt mr-2"></i>
+                Reset Filters
+              </a>
+              <a
+                th:href="@{/suppliers/new}"
+                class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center"
+              >
+                <i class="fas fa-plus mr-2"></i>
+                Add Your First Supplier
+              </a>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Auto-submit search on type (with delay)
+        const searchInput = document.querySelector('input[name="search"]');
+        if (searchInput) {
+          let searchTimeout;
+
+          searchInput.addEventListener("input", function (e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+              if (e.target.value.length >= 2 || e.target.value.length === 0) {
+                e.target.form.submit();
+              }
+            }, 500);
+          });
+        }
+
+        // Initialize mobile sidebar functionality
+        function toggleSidebar() {
+          const sidebar = document.getElementById("sidebar");
+          const overlay = document.getElementById("mobileOverlay");
+          if (sidebar && overlay) {
+            sidebar.classList.toggle("active");
+            overlay.classList.toggle("active");
+          }
+        }
+
+        // Add event listeners for mobile menu
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+        const mobileOverlay = document.getElementById("mobileOverlay");
+
+        if (mobileMenuBtn) {
+          mobileMenuBtn.addEventListener("click", toggleSidebar);
+        }
+        if (mobileOverlay) {
+          mobileOverlay.addEventListener("click", toggleSidebar);
+        }
+
+        // Close sidebar when nav item is clicked on mobile
+        document.querySelectorAll(".nav-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            if (window.innerWidth < 1024) {
+              toggleSidebar();
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

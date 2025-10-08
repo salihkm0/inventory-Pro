@@ -1,0 +1,143 @@
+/* Custom Styles for InventoryPro */
+.sidebar {
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-overlay {
+    display: none;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0.75rem;
+    color: #374151;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.nav-item:hover {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+.nav-item.active {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+.nav-icon {
+    width: 1.5rem;
+    text-align: center;
+    margin-right: 0.75rem;
+}
+
+.nav-text {
+    flex: 1;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.nav-badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+}
+
+/* Card hover effects */
+.hover-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.hover-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+/* Chart container */
+.chart-container {
+    position: relative;
+    height: 16rem;
+}
+
+/* Login page styles */
+.login-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card-shadow {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .mobile-menu-overlay.active {
+        display: block;
+    }
+    
+    .chart-container {
+        height: 12rem;
+    }
+}
+
+/* Custom utility classes */
+.text-shadow {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Animation for alerts */
+.alert-animate {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stats card improvements */
+.stats-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+}
+
+/* Ensure Tailwind utilities work */
+@import url('https://cdn.tailwindcss.com');

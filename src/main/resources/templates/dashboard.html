@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="fragments/header :: head('Dashboard')">
+</head>
+<body class="bg-gray-50">
+    <!-- Include sidebar -->
+    <div th:replace="fragments/sidebar :: body"></div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-64 min-h-screen flex flex-col">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+            <div class="px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">Dashboard</h2>
+                        <p class="text-gray-600 text-sm mt-1">Manage your inventory efficiently</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <a th:href="@{/debug/sales}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            <i class="fas fa-bug mr-2"></i>Debug Sales
+                        </a>
+                        <button onclick="createSampleData()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Sample Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 p-6">
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Products -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Total Products</p>
+                            <p class="text-2xl font-bold text-gray-900" th:text="${totalProducts}">0</p>
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-lg">
+                            <i class="fas fa-boxes text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex space-x-2 text-xs">
+                        <span class="text-red-600" th:text="${lowStockProducts} + ' low stock'"></span>
+                        <span class="text-gray-400">•</span>
+                        <span class="text-gray-600" th:text="${outOfStockProducts} + ' out of stock'"></span>
+                    </div>
+                </div>
+
+                <!-- Inventory Value -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Inventory Value</p>
+                            <p class="text-2xl font-bold text-gray-900" th:text="'$' + ${#numbers.formatDecimal(totalInventoryValue, 1, 2)}">$0.00</p>
+                        </div>
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-gray-600">Current stock value</div>
+                </div>
+
+                <!-- Today's Sales -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Today's Sales</p>
+                            <p class="text-2xl font-bold text-gray-900" th:text="'$' + ${#numbers.formatDecimal(todaySales, 1, 2)}">$0.00</p>
+                        </div>
+                        <div class="p-3 bg-purple-100 rounded-lg">
+                            <i class="fas fa-shopping-cart text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-gray-600">Revenue today</div>
+                </div>
+
+                <!-- Monthly Sales -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Monthly Sales</p>
+                            <p class="text-2xl font-bold text-gray-900" th:text="'$' + ${#numbers.formatDecimal(monthlySales, 1, 2)}">$0.00</p>
+                        </div>
+                        <div class="p-3 bg-orange-100 rounded-lg">
+                            <i class="fas fa-chart-line text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-gray-600">This month</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Monthly Sales Chart -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Monthly Sales Trend</h3>
+                        <span class="text-xs text-gray-500" id="monthlyChartInfo">Loading...</span>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="monthlySalesChart"></canvas>
+                    </div>
+                    <div id="monthlyChartPlaceholder" class="text-center py-8 hidden">
+                        <i class="fas fa-chart-line text-gray-300 text-4xl mb-2"></i>
+                        <p class="text-gray-500">No sales data available</p>
+                        <p class="text-sm text-gray-400">Record some sales to see trends</p>
+                        <button onclick="createSampleData()" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                            Create Sample Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sales by Category Chart -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Sales by Category</h3>
+                        <span class="text-xs text-gray-500" id="categoryChartInfo">Loading...</span>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="categorySalesChart"></canvas>
+                    </div>
+                    <div id="categoryChartPlaceholder" class="text-center py-8 hidden">
+                        <i class="fas fa-chart-pie text-gray-300 text-4xl mb-2"></i>
+                        <p class="text-gray-500">No category sales data</p>
+                        <p class="text-sm text-gray-400">Sales will be categorized by product category</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a th:href="@{/products/new}" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg text-center transition-colors">
+                        <i class="fas fa-plus text-2xl mb-2"></i>
+                        <div class="font-medium">Add Product</div>
+                    </a>
+                    <a th:href="@{/sales/new}" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg text-center transition-colors">
+                        <i class="fas fa-shopping-cart text-2xl mb-2"></i>
+                        <div class="font-medium">Record Sale</div>
+                    </a>
+                    <a th:href="@{/products/low-stock}" class="bg-red-600 hover:bg-red-700 text-white p-4 rounded-lg text-center transition-colors">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                        <div class="font-medium">Low Stock</div>
+                    </a>
+                    <a th:href="@{/products/reports}" class="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg text-center transition-colors">
+                        <i class="fas fa-chart-bar text-2xl mb-2"></i>
+                        <div class="font-medium">View Reports</div>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 Initializing dashboard charts...');
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            // Monthly Sales Chart with Real Data
+            const monthlySalesCtx = document.getElementById('monthlySalesChart');
+            if (monthlySalesCtx) {
+                try {
+                    // Get data from Thymeleaf
+                    const monthlySalesData = /*[[${monthlySalesData}]]*/ {};
+                    console.log('📈 Monthly Sales Data from server:', monthlySalesData);
+                    
+                    let labels, data;
+                    let hasRealData = false;
+                    
+                    if (monthlySalesData && Object.keys(monthlySalesData).length > 0) {
+                        // Check if we have any non-zero data
+                        const values = Object.values(monthlySalesData);
+                        const hasNonZeroData = values.some(val => {
+                            if (val && typeof val === 'object') {
+                                return parseFloat(val.amount) > 0;
+                            }
+                            return parseFloat(val) > 0;
+                        });
+                        
+                        if (hasNonZeroData) {
+                            labels = Object.keys(monthlySalesData);
+                            data = Object.values(monthlySalesData).map(val => {
+                                // Handle BigDecimal objects from Thymeleaf
+                                if (val && typeof val === 'object' && val.amount) {
+                                    return parseFloat(val.amount);
+                                }
+                                return val ? parseFloat(val) : 0;
+                            });
+                            hasRealData = true;
+                            console.log('✅ Using REAL monthly data');
+                        }
+                    }
+                    
+                    if (!hasRealData) {
+                        // Fallback data for empty charts
+                        console.log('📝 Using FALLBACK monthly data');
+                        const currentDate = new Date();
+                        labels = [];
+                        data = [];
+                        
+                        // Generate last 6 months labels
+                        for (let i = 5; i >= 0; i--) {
+                            const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+                            labels.push(date.toLocaleString('default', { month: 'short' }) + ' ' + date.getFullYear());
+                            // Add some sample data for demonstration
+                            data.push(Math.random() * 1000 + 500);
+                        }
+                    }
+                    
+                    console.log('📊 Chart Labels:', labels);
+                    console.log('📊 Chart Data:', data);
+                    
+                    // Show/hide placeholder
+                    const placeholder = document.getElementById('monthlyChartPlaceholder');
+                    const chartInfo = document.getElementById('monthlyChartInfo');
+                    
+                    if (hasRealData) {
+                        placeholder.classList.add('hidden');
+                        chartInfo.textContent = 'Real Data';
+                        chartInfo.className = 'text-xs text-green-600';
+                    } else {
+                        placeholder.classList.remove('hidden');
+                        chartInfo.textContent = 'Sample Data';
+                        chartInfo.className = 'text-xs text-blue-600';
+                    }
+                    
+                    new Chart(monthlySalesCtx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Monthly Sales ($)',
+                                data: data,
+                                borderColor: 'rgb(59, 130, 246)',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return 'Sales: $' + context.raw.toLocaleString();
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '$' + value.toLocaleString();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    console.log('✅ Monthly sales chart created successfully');
+                } catch (error) {
+                    console.error('❌ Error creating monthly sales chart:', error);
+                }
+            }
+
+            // Category Sales Chart with Real Data
+            const categorySalesCtx = document.getElementById('categorySalesChart');
+            if (categorySalesCtx) {
+                try {
+                    // Get data from Thymeleaf
+                    const salesByCategory = /*[[${salesByCategory}]]*/ {};
+                    console.log('📊 Sales by Category Data from server:', salesByCategory);
+                    
+                    let categoryLabels, categoryData;
+                    let hasRealCategoryData = false;
+                    
+                    if (salesByCategory && Object.keys(salesByCategory).length > 0) {
+                        // Check if we have any non-zero data
+                        const values = Object.values(salesByCategory);
+                        const hasNonZeroData = values.some(val => {
+                            if (val && typeof val === 'object') {
+                                return parseFloat(val.amount) > 0;
+                            }
+                            return parseFloat(val) > 0;
+                        });
+                        
+                        if (hasNonZeroData) {
+                            categoryLabels = Object.keys(salesByCategory);
+                            categoryData = Object.values(salesByCategory).map(val => {
+                                if (val && typeof val === 'object' && val.amount) {
+                                    return parseFloat(val.amount);
+                                }
+                                return val ? parseFloat(val) : 0;
+                            });
+                            hasRealCategoryData = true;
+                            console.log('✅ Using REAL category data');
+                        }
+                    }
+                    
+                    if (!hasRealCategoryData) {
+                        // Fallback data for empty charts
+                        console.log('📝 Using FALLBACK category data');
+                        categoryLabels = ['Electronics', 'Furniture', 'Stationery', 'Other'];
+                        categoryData = [1500, 800, 300, 450];
+                    }
+                    
+                    console.log('📊 Category Labels:', categoryLabels);
+                    console.log('📊 Category Data:', categoryData);
+                    
+                    // Show/hide placeholder
+                    const placeholder = document.getElementById('categoryChartPlaceholder');
+                    const chartInfo = document.getElementById('categoryChartInfo');
+                    
+                    if (hasRealCategoryData) {
+                        placeholder.classList.add('hidden');
+                        chartInfo.textContent = 'Real Data';
+                        chartInfo.className = 'text-xs text-green-600';
+                    } else {
+                        placeholder.classList.remove('hidden');
+                        chartInfo.textContent = 'Sample Data';
+                        chartInfo.className = 'text-xs text-blue-600';
+                    }
+                    
+                    new Chart(categorySalesCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: categoryLabels,
+                            datasets: [{
+                                data: categoryData,
+                                backgroundColor: [
+                                    'rgb(59, 130, 246)',
+                                    'rgb(16, 185, 129)',
+                                    'rgb(245, 158, 11)',
+                                    'rgb(139, 92, 246)',
+                                    'rgb(236, 72, 153)',
+                                    'rgb(99, 102, 241)'
+                                ],
+                                borderWidth: 2,
+                                borderColor: 'white'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.raw || 0;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                            return `${label}: $${value.toLocaleString()} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    console.log('✅ Category sales chart created successfully');
+                } catch (error) {
+                    console.error('❌ Error creating category sales chart:', error);
+                }
+            }
+        }
+
+        function createSampleData() {
+            if (confirm('This will create sample sales data for testing. Continue?')) {
+                fetch('/sales/create-sample', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Sample data created successfully! Refreshing page...');
+                        location.reload();
+                    } else {
+                        alert('Error creating sample data');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error creating sample data');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
