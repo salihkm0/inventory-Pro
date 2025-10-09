@@ -90,13 +90,6 @@
                 <i class="fas fa-print mr-2"></i>
                 Print Report
               </button>
-              <a
-                th:href="@{/products}"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
-              >
-                <i class="fas fa-arrow-left mr-2"></i>
-                Back to Products
-              </a>
             </div>
           </div>
         </div>
@@ -132,7 +125,7 @@
                 <p class="text-sm font-medium text-gray-600">Inventory Value</p>
                 <p
                   class="text-2xl font-bold text-gray-900"
-                  th:text="'$' + ${#numbers.formatDecimal(totalInventoryValueDouble, 1, 2)}"
+                  th:text="'₹' + ${#numbers.formatDecimal(totalInventoryValueDouble, 1, 2)}"
                 >
                   $0.00
                 </p>
@@ -284,7 +277,7 @@
                 <div class="text-right">
                   <span
                     class="text-sm font-semibold text-green-600 block"
-                    th:text="'$' + ${#numbers.formatDecimal(product.price.doubleValue() * product.quantity, 1, 2)}"
+                    th:text="'₹' + ${#numbers.formatDecimal(product.price.doubleValue() * product.quantity, 1, 2)}"
                     >$0.00</span
                   >
                   <span class="text-xs text-gray-500">Total Value</span>
@@ -484,7 +477,7 @@
                                   beginAtZero: true,
                                   ticks: {
                                       callback: function(value) {
-                                          return '$' + value.toLocaleString();
+                                          return '₹' + value.toLocaleString();
                                       }
                                   }
                               }

@@ -49,7 +49,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600">Inventory Value</p>
-                            <p class="text-2xl font-bold text-gray-900" th:text="'$' + ${#numbers.formatDecimal(totalInventoryValue, 1, 2)}">$0.00</p>
+                            <p class="text-2xl font-bold text-gray-900" th:text="'₹' + ${#numbers.formatDecimal(totalInventoryValue, 1, 2)}">₹0.00</p>
                         </div>
                         <div class="p-3 bg-green-100 rounded-lg">
                             <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
@@ -63,7 +63,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600">Today's Sales</p>
-                            <p class="text-2xl font-bold text-gray-900" th:text="'$' + ${#numbers.formatDecimal(todaySales, 1, 2)}">$0.00</p>
+                            <p class="text-2xl font-bold text-gray-900" th:text="'₹' + ${#numbers.formatDecimal(todaySales, 1, 2)}">₹0.00</p>
                         </div>
                         <div class="p-3 bg-purple-100 rounded-lg">
                             <i class="fas fa-shopping-cart text-purple-600 text-xl"></i>
@@ -77,7 +77,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600">Monthly Sales</p>
-                            <p class="text-2xl font-bold text-gray-900" th:text="'$' + ${#numbers.formatDecimal(monthlySales, 1, 2)}">$0.00</p>
+                            <p class="text-2xl font-bold text-gray-900" th:text="'₹' + ${#numbers.formatDecimal(monthlySales, 1, 2)}">₹0.00</p>
                         </div>
                         <div class="p-3 bg-orange-100 rounded-lg">
                             <i class="fas fa-chart-line text-orange-600 text-xl"></i>
@@ -95,8 +95,8 @@
                         <h3 class="text-lg font-semibold text-gray-800">Monthly Sales Trend</h3>
                         <div class="flex items-center space-x-2">
                             <span class="text-xs px-2 py-1 rounded" id="monthlyChartInfo" 
-                                  th:classappend="${hasMonthlyData} ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
-                                  th:text="${hasMonthlyData} ? 'Real Data (' + ${monthlySalesData.size()} + ' months)' : 'No Sales Data'">
+                                  th:classappend="${hasMonthlyData} ? 'bg-green-0 text-green-800' : 'bg-yellow-100 text-yellow-800'"
+                                  th:text="${hasMonthlyData} ? '' : 'No Sales Data'">
                             </span>
                             <span class="text-xs text-gray-500" th:text="'Total Sales: ' + ${totalSalesCount}"></span>
                         </div>
@@ -120,8 +120,8 @@
                         <h3 class="text-lg font-semibold text-gray-800">Sales by Category</h3>
                         <div class="flex items-center space-x-2">
                             <span class="text-xs px-2 py-1 rounded" id="categoryChartInfo"
-                                  th:classappend="${hasCategoryData} ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
-                                  th:text="${hasCategoryData} ? 'Real Data (' + ${salesByCategory.size()} + ' categories)' : 'No Category Data'">
+                                  th:classappend="${hasCategoryData} ? 'bg-green-0 text-green-800' : 'bg-yellow-100 text-yellow-800'"
+                                  th:text="${hasCategoryData} ? '' : 'No Category Data'">
                             </span>
                         </div>
                     </div>
@@ -293,7 +293,7 @@
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Monthly Sales ($)',
+                            label: 'Monthly Sales (₹)',
                             data: values,
                             borderColor: 'rgb(59, 130, 246)',
                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -310,7 +310,7 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        return 'Sales: $' + (context.raw || 0).toLocaleString();
+                                        return 'Sales: ₹' + (context.raw || 0).toLocaleString();
                                     }
                                 }
                             }
@@ -320,7 +320,7 @@
                                 beginAtZero: true,
                                 ticks: {
                                     callback: function(value) {
-                                        return '$' + value.toLocaleString();
+                                        return '₹' + value.toLocaleString();
                                     }
                                 }
                             }
@@ -386,7 +386,7 @@
                                         const value = context.raw || 0;
                                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                         const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                                        return `${label}: $${value.toLocaleString()} (${percentage}%)`;
+                                        return `${label}: ₹${value.toLocaleString()} (${percentage}%)`;
                                     }
                                 }
                             }

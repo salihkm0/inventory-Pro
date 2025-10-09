@@ -18,10 +18,6 @@
                         <p class="text-gray-600 text-sm mt-1">Products that need immediate restocking</p>
                     </div>
                     <div class="flex space-x-3">
-                        <a th:href="@{/products}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
-                            <i class="fas fa-arrow-left mr-2"></i>
-                            Back to Products
-                        </a>
                         <a th:href="@{/products/low-stock}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
                             <i class="fas fa-exclamation-triangle mr-2"></i>
                             View Low Stock
@@ -109,7 +105,7 @@
                     </h3>
                     <div class="flex space-x-3">
                         <span class="text-lg font-semibold text-gray-700">
-                            Total Value: <span class="text-green-600" th:text="'$' + ${#numbers.formatDecimal(totalInventoryValue, 1, 2)}">$0.00</span>
+                            Total Value: <span class="text-green-600" th:text="'₹' + ${#numbers.formatDecimal(totalInventoryValue, 1, 2)}">$0.00</span>
                         </span>
                     </div>
                 </div>
@@ -144,7 +140,7 @@
                                     <div class="text-sm text-gray-900 font-mono" th:text="${product.sku}"></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900" th:text="${'$' + #numbers.formatDecimal(product.price, 1, 2)}"></div>
+                                    <div class="text-sm font-medium text-gray-900" th:text="${'₹' + #numbers.formatDecimal(product.price, 1, 2)}"></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800" 

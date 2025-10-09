@@ -53,19 +53,19 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         UserDetails admin = User.builder()
             .username("admin")
-            .password(passwordEncoder().encode("admin123"))
+            .password(passwordEncoder().encode("123456"))
             .roles("ADMIN", "USER")
             .build();
             
         UserDetails manager = User.builder()
             .username("manager")
-            .password(passwordEncoder().encode("manager123"))
+            .password(passwordEncoder().encode("123456"))
             .roles("MANAGER", "USER")
             .build();
 
         UserDetails user = User.builder()
             .username("user")
-            .password(passwordEncoder().encode("user123"))
+            .password(passwordEncoder().encode("123456"))
             .roles("USER")
             .build();
 
